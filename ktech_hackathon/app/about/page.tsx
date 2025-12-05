@@ -297,7 +297,7 @@ export default function AboutPage() {
       </section>
 
       {/* Stats Section */}
-      <section 
+      <section
         className="relative py-16 sm:py-20 md:py-24 bg-blue-600 text-white overflow-hidden"
         style={{
           backgroundImage: "url(/pin-card.svg)",

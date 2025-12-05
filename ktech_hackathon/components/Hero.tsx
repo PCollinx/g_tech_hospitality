@@ -1,13 +1,33 @@
 "use client";
 
-import { Search, Calendar, Users } from "lucide-react";
+import { Search, Calendar, Users, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Hero() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
+  const [roomType, setRoomType] = useState("");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState("");
+
+  const roomTypes = [
+    "All Rooms",
+    "Deluxe Room",
+    "Suite",
+    "Executive Suite",
+    "Presidential Suite",
+  ];
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (roomType && roomType !== "All Rooms") params.append("type", roomType);
+    if (checkIn) params.append("checkIn", checkIn);
+    if (checkOut) params.append("checkOut", checkOut);
+    if (guests) params.append("guests", guests);
+    
+    router.push(`/#rooms${params.toString() ? `?${params.toString()}` : ""}`);
+  };
 
   return (
     <section className="relative w-full max-w-[100vw] h-screen min-h-[600px] sm:min-h-[700px] lg:h-[789px] overflow-hidden">
@@ -40,18 +60,59 @@ export default function Hero() {
           </div>
 
           {/* Simple Search Bar - Mobile First */}
-          <div className="w-full backdrop-blur-sm bg-white/20 rounded-full p-2 sm:p-3 lg:hidden">
-            <div className="bg-white rounded-full flex items-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
-              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+          <div className="w-full backdrop-blur-sm bg-white/20 rounded-3xl p-2 sm:p-3 lg:hidden">
+            <div className="bg-white rounded-3xl p-3 sm:p-4 shadow-lg space-y-3">
+              {/* Room Type */}
+              <div className="relative">
+                <select
+                  value={roomType}
+                  onChange={(e) => setRoomType(e.target.value)}
+                  className="w-full text-sm sm:text-base text-gray-700 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-blue-600 appearance-none cursor-pointer"
+                >
+                  <option value="">Select room type</option>
+                  {roomTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
+              
+              {/* Date Inputs */}
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="date"
+                  value={checkIn}
+                  onChange={(e) => setCheckIn(e.target.value)}
+                  placeholder="Check in"
+                  className="text-xs sm:text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-blue-600"
+                />
+                <input
+                  type="date"
+                  value={checkOut}
+                  onChange={(e) => setCheckOut(e.target.value)}
+                  placeholder="Check out"
+                  className="text-xs sm:text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-blue-600"
+                />
+              </div>
+              
+              {/* Guests */}
               <input
-                type="text"
-                placeholder="Search room"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 ml-2 sm:ml-3 text-sm sm:text-base text-gray-700 placeholder:text-gray-400 outline-none bg-transparent"
+                type="number"
+                min="1"
+                value={guests}
+                onChange={(e) => setGuests(e.target.value)}
+                placeholder="Number of guests"
+                className="w-full text-sm sm:text-base text-gray-700 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-blue-600"
               />
-              <button className="ml-2 bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold shadow-md transition-all duration-200 whitespace-nowrap">
-                Search
+              
+              {/* Search Button */}
+              <button
+                onClick={handleSearch}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-sm sm:text-base font-semibold shadow-md transition-all duration-200"
+              >
+                Search Rooms
               </button>
             </div>
           </div>
@@ -60,20 +121,26 @@ export default function Hero() {
           <div className="hidden lg:block w-full backdrop-blur-sm bg-white/20 rounded-full p-4">
             <div className="bg-white rounded-full flex items-center justify-between p-3 shadow-xl">
               <div className="flex items-center gap-6 flex-1">
-                {/* Search Room */}
-                <div className="flex flex-col gap-1 flex-1 min-w-0">
+                {/* Room Type */}
+                <div className="flex flex-col gap-1 flex-1 min-w-0 relative">
                   <label className="text-xs font-medium text-gray-900">
-                    Search room
+                    Room type
                   </label>
                   <div className="flex items-center gap-2">
                     <Search className="w-4 h-4 text-gray-400 shrink-0" />
-                    <input
-                      type="text"
-                      placeholder="Search room..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="text-sm text-gray-700 placeholder:text-gray-400 outline-none bg-transparent w-full"
-                    />
+                    <select
+                      value={roomType}
+                      onChange={(e) => setRoomType(e.target.value)}
+                      className="text-sm text-gray-700 outline-none bg-transparent w-full appearance-none cursor-pointer pr-4"
+                    >
+                      <option value="">Select type</option>
+                      {roomTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-3 h-3 text-gray-400 pointer-events-none absolute right-0" />
                   </div>
                 </div>
 
@@ -88,11 +155,10 @@ export default function Hero() {
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
-                      type="text"
-                      placeholder="Add date"
+                      type="date"
                       value={checkIn}
                       onChange={(e) => setCheckIn(e.target.value)}
-                      className="text-sm text-gray-700 placeholder:text-gray-400 outline-none bg-transparent w-full"
+                      className="text-sm text-gray-700 outline-none bg-transparent w-full"
                     />
                   </div>
                 </div>
@@ -108,11 +174,10 @@ export default function Hero() {
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
-                      type="text"
-                      placeholder="Add date"
+                      type="date"
                       value={checkOut}
                       onChange={(e) => setCheckOut(e.target.value)}
-                      className="text-sm text-gray-700 placeholder:text-gray-400 outline-none bg-transparent w-full"
+                      className="text-sm text-gray-700 outline-none bg-transparent w-full"
                     />
                   </div>
                 </div>
@@ -128,8 +193,9 @@ export default function Hero() {
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
-                      type="text"
-                      placeholder="Add guests"
+                      type="number"
+                      min="1"
+                      placeholder="1"
                       value={guests}
                       onChange={(e) => setGuests(e.target.value)}
                       className="text-sm text-gray-700 placeholder:text-gray-400 outline-none bg-transparent w-full"
@@ -139,7 +205,10 @@ export default function Hero() {
               </div>
 
               {/* Search Button */}
-              <button className="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full text-sm font-semibold shadow-md transition-all duration-200 hover:shadow-lg flex-shrink-0">
+              <button
+                onClick={handleSearch}
+                className="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full text-sm font-semibold shadow-md transition-all duration-200 hover:shadow-lg flex-shrink-0"
+              >
                 Search
               </button>
             </div>
