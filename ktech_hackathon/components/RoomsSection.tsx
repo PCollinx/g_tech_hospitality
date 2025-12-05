@@ -24,9 +24,9 @@ export default function RoomsSection() {
       className="relative w-full max-w-[100vw] bg-linear-to-b from-white via-gray-50 to-white pt-16 overflow-hidden"
     >
       {/* Decorative Background Elements */}
-      <div className="absolute top-20 -right-10 sm:right-10 w-48 h-48 sm:w-72 sm:h-72 bg-blue-500/20 rounded-full blur-3xl -z-10" />
-      <div className="absolute bottom-20 -left-10 sm:left-10 w-64 h-64 sm:w-96 sm:h-96 bg-purple-500/15 rounded-full blur-3xl -z-10" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[600px] h-[90vw] max-h-[600px] bg-blue-400/10 rounded-full blur-3xl -z-10" />
+      <div className="absolute top-20 -right-10 sm:right-10 w-48 h-48 sm:w-72 sm:h-72 bg-blue-500/20 rounded-full blur-3xl z-20" />
+      <div className="absolute bottom-20 -left-10 sm:left-10 w-64 h-64 sm:w-96 sm:h-96 bg-purple-500/15 rounded-full blur-3xl z-20" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[600px] h-[90vw] max-h-[600px] bg-blue-400/10 rounded-full blur-3xl z-20" />
 
       <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-32">
         {/* Section Header */}
