@@ -228,19 +228,116 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               animate={{ x: 0 }}
               exit={{ x: -272 }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-0 h-full w-[272px] bg-white border-r border-[#e9eaeb] z-50 lg:hidden flex flex-col justify-between"
+              className="fixed left-0 top-0 h-full w-[272px] bg-white border-r border-[#e9eaeb] z-50 lg:hidden flex flex-col"
             >
-              <div className="flex justify-end p-4">
-                <button onClick={() => setIsMobileSidebarOpen(false)}>
-                  <X className="w-6 h-6" />
+              {/* Header with Logo and Close Button */}
+              <div className="flex items-center justify-between px-4 pt-8 pb-6">
+                <Image
+                  src="/logo.svg"
+                  alt="luxehaven"
+                  width={120}
+                  height={32}
+                  className="h-8 w-auto"
+                />
+                <button
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <X className="w-6 h-6 text-gray-600" />
                 </button>
               </div>
-              <NavContent
-                navigationItems={navigationItems}
-                isActive={isActive}
-                router={router}
-                setIsMobileSidebarOpen={setIsMobileSidebarOpen}
-              />
+
+              {/* Navigation Items */}
+              <div className="flex flex-col gap-4 px-4 flex-1">
+                {navigationItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.path);
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => {
+                        router.push(item.path);
+                        setIsMobileSidebarOpen(false);
+                      }}
+                      className={`relative flex items-center justify-between h-10 px-4 py-2 rounded overflow-hidden ${
+                        active ? "bg-[#d3e0fb]" : "bg-white hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Icon
+                          className={`w-5 h-5 ${
+                            active ? "text-blue-600" : "text-[#535862]"
+                          }`}
+                        />
+                        <span
+                          className={`text-base leading-6 ${
+                            active ? "text-blue-600" : "text-[#535862]"
+                          }`}
+                          style={{ fontFamily: "Pretendard, sans-serif" }}
+                        >
+                          {item.name}
+                        </span>
+                      </div>
+                      {active && (
+                        <div className="absolute left-0 top-0 w-[7px] h-full bg-blue-600" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Footer Section */}
+              <div className="flex flex-col gap-6 pb-8 px-4 mt-auto">
+                {/* Settings Button */}
+                <button
+                  onClick={() => {
+                    router.push("/admin/settings");
+                    setIsMobileSidebarOpen(false);
+                  }}
+                  className="flex items-center justify-between h-10 px-4 py-2 rounded overflow-hidden bg-white hover:bg-gray-50"
+                >
+                  <div className="flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-[#535862]" />
+                    <span
+                      className="text-base leading-6 text-[#535862]"
+                      style={{ fontFamily: "Pretendard, sans-serif" }}
+                    >
+                      Settings
+                    </span>
+                  </div>
+                </button>
+
+                {/* Divider */}
+                <div className="h-px bg-[#e9eaeb]" />
+
+                {/* User Account */}
+                <div className="flex items-start justify-between px-2">
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                      <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-400 to-blue-600 text-white font-semibold">
+                        DK
+                      </div>
+                    </div>
+                    <div className="flex flex-col text-sm leading-5">
+                      <p
+                        className="font-semibold text-black"
+                        style={{ fontFamily: "Pretendard, sans-serif" }}
+                      >
+                        Daniel Kyle
+                      </p>
+                      <p
+                        className="text-blue-600"
+                        style={{ fontFamily: "Pretendard, sans-serif" }}
+                      >
+                        Administrator
+                      </p>
+                    </div>
+                  </div>
+                  <button className="w-5 h-5 flex items-center justify-center">
+                    <LogOut className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+              </div>
             </motion.aside>
           </>
         )}

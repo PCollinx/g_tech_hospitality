@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutGrid, Grid3x3, FileText, Settings, LogOut } from "lucide-react";
+import { LayoutGrid, Grid3x3, FileText, Settings, LogOut, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -141,16 +141,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               className="fixed top-0 left-0 bottom-0 w-[272px] bg-[#0c214e] z-50 lg:hidden"
             >
               <div className="flex flex-col justify-between h-full">
-                {/* Sidebar Header */}
-                <div className="flex flex-col gap-6 pt-8">
-                  <div className="px-4 pr-5">
+                {/* Header with Logo and Close Button */}
+                <div className="flex flex-col gap-6">
+                  <div className="flex items-center justify-between px-4 pt-8">
                     <Image
-                      src="/logo.svg"
+                      src="/dashboard-logo.svg"
                       alt="luxehaven"
                       width={120}
                       height={32}
                       className="h-8 w-auto"
                     />
+                    <button
+                      onClick={() => setIsSidebarOpen(false)}
+                      className="p-1 hover:bg-[#19429d]/20 rounded"
+                    >
+                      <X className="w-6 h-6 text-white" />
+                    </button>
                   </div>
 
                   <nav className="px-4 flex flex-col gap-4">
