@@ -20,8 +20,12 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         try {
+          // Get API URL - use environment variable or default
           const apiUrl =
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+            process.env.NEXT_PUBLIC_API_URL || 
+            (process.env.NODE_ENV === "production" 
+              ? "https://ktech.sydeestack.com/api/v1" 
+              : "http://localhost:3000/api/v1");
 
           // API request to validate user
           const response = await axios.post(`${apiUrl}/users/login`, {

@@ -2,7 +2,9 @@ import axios from "axios";
 import { storage } from "./storage";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1",
+  baseURL:
+    process.env.NEXT_PUBLIC_API_URL ||
+    "https://api.ktech.sydeestack.com/api/v1",
 });
 
 axiosInstance.defaults.withCredentials = false;
