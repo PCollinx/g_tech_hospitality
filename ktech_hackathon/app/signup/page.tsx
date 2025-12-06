@@ -113,8 +113,8 @@ export default function SignUpPage() {
         ninVerified: user.verificationFlags?.ninVerified || false,
       });
 
-      // Show verification dialog
-      setShowVerification(true);
+    // Show verification dialog
+    setShowVerification(true);
     } catch (err: any) {
       // Show toast for API errors (axios interceptor doesn't show for auth endpoints)
       const errorMessage =
@@ -388,13 +388,13 @@ export default function SignUpPage() {
         }}
         userData={
           verificationData || {
-            name: `${formData.firstName} ${formData.lastName}`,
+          name: `${formData.firstName} ${formData.lastName}`,
             idNumber:
               formData.nin.length > 4
                 ? "*".repeat(formData.nin.length - 4) + formData.nin.slice(-4)
                 : "*".repeat(formData.nin.length),
-            idType: "NIN",
-            expires: "15/03/2030",
+          idType: "NIN",
+          expires: "15/03/2030",
           }
         }
       />

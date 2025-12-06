@@ -123,10 +123,10 @@ export default function RoomDetailsPage({ params }: PageProps) {
             </p>
             <div className="flex gap-4 justify-center">
               <Link href="/rooms">
-                <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button className="bg-blue-600 hover:bg-blue-700">
                   Browse All Rooms
-                </Button>
-              </Link>
+              </Button>
+            </Link>
               <Link href="/">
                 <Button variant="outline">Back to Home</Button>
               </Link>
@@ -188,15 +188,15 @@ export default function RoomDetailsPage({ params }: PageProps) {
                 </p>
               </div>
               {isAvailable && (
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#12B76A]" />
-                  <div className="flex items-center gap-1 bg-[#ecfdf3] px-3 py-1 rounded-2xl">
-                    <Check className="w-3 h-3 text-[#027a48]" />
-                    <span className="text-xs sm:text-sm font-medium text-[#027a48]">
-                      Available
-                    </span>
-                  </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#12B76A]" />
+                <div className="flex items-center gap-1 bg-[#ecfdf3] px-3 py-1 rounded-2xl">
+                  <Check className="w-3 h-3 text-[#027a48]" />
+                  <span className="text-xs sm:text-sm font-medium text-[#027a48]">
+                    Available
+                  </span>
                 </div>
+              </div>
               )}
             </div>
             <div className="text-left lg:text-right">
@@ -253,12 +253,12 @@ export default function RoomDetailsPage({ params }: PageProps) {
                       alt={`${getRoomName(room)} - View ${
                         i + (room.images?.length || 1)
                       }`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 45vw, 283px"
-                    />
-                  </div>
-                ))}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 45vw, 283px"
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
@@ -274,16 +274,16 @@ export default function RoomDetailsPage({ params }: PageProps) {
               <div className="flex items-center gap-1 mt-2">
                 <div className="flex items-center gap-1">
                   <Users className="w-4 h-4 text-[#717680]" />
-                  <span className="text-xs text-[#717680]">
+                <span className="text-xs text-[#717680]">
                     Up to {room.maxGuest} guest{room.maxGuest > 1 ? "s" : ""}
-                  </span>
+                </span>
                 </div>
                 <div className="w-1 h-1 rounded-full bg-[#a4a7ae]" />
                 <div className="flex items-center gap-1">
                   <Bed className="w-4 h-4 text-[#717680]" />
                   <span className="text-xs text-[#717680] capitalize">
                     {room.bedType} bed
-                  </span>
+                </span>
                 </div>
                 {room.oceanView && (
                   <>
@@ -297,14 +297,14 @@ export default function RoomDetailsPage({ params }: PageProps) {
               </div>
             </div>
             {isAvailable && (
-              <Link
-                href={`/rooms/${roomId}/select-date`}
-                className="w-full lg:w-auto"
-              >
+            <Link
+              href={`/rooms/${roomId}/select-date`}
+              className="w-full lg:w-auto"
+            >
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm sm:text-base px-5 py-6 rounded-[50px] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] w-full lg:min-w-[253px] min-h-[56px]">
-                  Continue
-                </Button>
-              </Link>
+                Continue
+              </Button>
+            </Link>
             )}
           </div>
 

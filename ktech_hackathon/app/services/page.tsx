@@ -10,8 +10,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { storage } from "@/lib/storage";
+import { useSession } from "next-auth/react";
 
 const services = [
   {
@@ -82,6 +84,15 @@ const services = [
 export default function ServicesPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
+  const { data: session } = useSession();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const storedUser = storage.getUser() || (session?.user as any);
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, [session]);
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -91,11 +102,7 @@ export default function ServicesPage() {
         <div className="flex flex-col gap-6 pt-8">
           {/* Logo */}
           <div className="px-4 pr-5">
-            <img
-              src="/logo.svg"
-              alt="luxehaven"
-              className="h-8 w-auto"
-            />
+            <img src="/logo.svg" alt="luxehaven" className="h-8 w-auto" />
           </div>
 
           {/* Navigation */}
@@ -178,11 +185,7 @@ export default function ServicesPage() {
           {/* Sidebar Header */}
           <div className="flex flex-col gap-6 pt-8">
             <div className="px-4 pr-5">
-              <img
-                src="/logo.svg"
-                alt="luxehaven"
-                className="h-8 w-auto"
-              />
+              <img src="/logo.svg" alt="luxehaven" className="h-8 w-auto" />
             </div>
 
             <nav className="px-4 flex flex-col gap-4">
@@ -252,7 +255,7 @@ export default function ServicesPage() {
         <header className="hidden md:flex h-20 bg-white border-b border-gray-200 shadow-sm items-center justify-between px-6">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-semibold text-[#181d27]">
-              Welcome back, Daniel 👋
+              Welcome back, {user?.firstName || "User"}
             </h1>
             <p className="text-base text-[#535862]">
               Here&apos;s everything about your upcoming stay.
@@ -279,11 +282,7 @@ export default function ServicesPage() {
 
         {/* Mobile Header */}
         <header className="flex md:hidden h-16 bg-white border-b border-gray-200 shadow-sm items-center justify-between px-5">
-          <img
-            src="/logo.svg"
-            alt="luxehaven"
-            className="h-8 w-auto"
-          />
+          <img src="/logo.svg" alt="luxehaven" className="h-8 w-auto" />
 
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}

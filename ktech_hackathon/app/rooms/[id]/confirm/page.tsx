@@ -410,10 +410,10 @@ export default function ConfirmPage({ params }: PageProps) {
                   <div className="flex items-center gap-1">
                     <div className="flex items-center gap-1">
                       <Users className="w-4 h-4 text-[#717680]" />
-                      <span className="text-xs text-[#717680]">
+                    <span className="text-xs text-[#717680]">
                         Up to {room.maxGuest} guest
                         {room.maxGuest > 1 ? "s" : ""}
-                      </span>
+                    </span>
                     </div>
                     <div className="w-1 h-1 rounded-full bg-[#a4a7ae]" />
                     <div className="flex items-center gap-1">
@@ -427,9 +427,9 @@ export default function ConfirmPage({ params }: PageProps) {
                         <div className="w-1 h-1 rounded-full bg-[#a4a7ae]" />
                         <div className="flex items-center gap-1">
                           <Eye className="w-4 h-4 text-[#717680]" />
-                          <span className="text-xs text-[#717680]">
+                    <span className="text-xs text-[#717680]">
                             Ocean View
-                          </span>
+                    </span>
                         </div>
                       </>
                     )}

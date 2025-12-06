@@ -10,15 +10,18 @@ import {
   Check,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { storage } from "@/lib/storage";
+import { useSession } from "next-auth/react";
 
 // Request data matching Figma design
 const requests = [
   {
     id: 1,
     serviceType: "Room Service",
-    description: "I have a slight injury on my lower right back from lifting luggage, so please avoid deep pressure in that area. Also, I have sensitive...",
+    description:
+      "I have a slight injury on my lower right back from lifting luggage, so please avoid deep pressure in that area. Also, I have sensitive...",
     time: "01:01",
     estimatedTime: "Est. 15-30 min",
     status: "Pending",
@@ -29,7 +32,8 @@ const requests = [
   {
     id: 2,
     serviceType: "Housekeeping",
-    description: "We accidentally spilled some soda on the rug near the bed. Could you please send someone to clean it up before it stains? We also need fresh towels.",
+    description:
+      "We accidentally spilled some soda on the rug near the bed. Could you please send someone to clean it up before it stains? We also need fresh towels.",
     time: "01:01",
     estimatedTime: "Est. 15-30 min",
     status: "Pending",
@@ -40,7 +44,8 @@ const requests = [
   {
     id: 3,
     serviceType: "Laundry",
-    description: "The blue silk dress is very delicate. Please dry clean only and do not use high heat. It has a small sequin detail on the collar, please be careful.",
+    description:
+      "The blue silk dress is very delicate. Please dry clean only and do not use high heat. It has a small sequin detail on the collar, please be careful.",
     time: "01:01",
     estimatedTime: "Est. 15-30 min",
     status: "Pending",
@@ -64,6 +69,15 @@ const requests = [
 export default function RequestsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
+  const { data: session } = useSession();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const storedUser = storage.getUser() || (session?.user as any);
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, [session]);
 
   return (
     <div className="flex min-h-screen bg-white w-full overflow-x-hidden">
@@ -73,11 +87,7 @@ export default function RequestsPage() {
         <div className="flex flex-col gap-6 pt-8">
           {/* Logo */}
           <div className="px-4 pr-5">
-            <img
-              src="/logo.svg"
-              alt="luxehaven"
-              className="h-8 w-auto"
-            />
+            <img src="/logo.svg" alt="luxehaven" className="h-8 w-auto" />
           </div>
 
           {/* Navigation */}
@@ -163,11 +173,7 @@ export default function RequestsPage() {
           {/* Sidebar Header */}
           <div className="flex flex-col gap-6 pt-8">
             <div className="px-4 pr-5">
-              <img
-                src="/logo.svg"
-                alt="luxehaven"
-                className="h-8 w-auto"
-              />
+              <img src="/logo.svg" alt="luxehaven" className="h-8 w-auto" />
             </div>
 
             <nav className="px-4 flex flex-col gap-4">
@@ -256,7 +262,7 @@ export default function RequestsPage() {
           {/* Welcome Message */}
           <div className="flex flex-col gap-1">
             <h1 className="font-['Geist'] font-semibold text-lg sm:text-xl lg:text-2xl text-[#181d27] leading-tight sm:leading-7 lg:leading-8">
-              Welcome back, Daniel 👋
+              Welcome back, {user?.firstName || "User"}
             </h1>
             <p className="font-['Geist'] font-normal text-sm sm:text-base text-[#535862] leading-5 sm:leading-6">
               Here&apos;s everything about your upcoming stay.

@@ -259,9 +259,9 @@ export default function SelectDatePage({ params }: PageProps) {
                     className="bg-white border border-[#d5d7da] rounded-lg px-3.5 py-2.5 text-base text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                   />
                   {checkIn && (
-                    <p className="text-sm text-[#535862]">
+                  <p className="text-sm text-[#535862]">
                       {formatDate(checkIn)}
-                    </p>
+                  </p>
                   )}
                 </div>
 
@@ -282,9 +282,9 @@ export default function SelectDatePage({ params }: PageProps) {
                     className="bg-white border border-[#d5d7da] rounded-lg px-3.5 py-2.5 text-base text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                   />
                   {checkOut && (
-                    <p className="text-sm text-[#535862]">
+                  <p className="text-sm text-[#535862]">
                       {formatDate(checkOut)}
-                    </p>
+                  </p>
                   )}
                 </div>
               </div>
@@ -292,8 +292,8 @@ export default function SelectDatePage({ params }: PageProps) {
               {/* Stay Summary */}
               {nights > 0 && (
                 <div className="flex flex-col gap-2 bg-blue-50 p-4 rounded-lg">
-                  <div className="flex items-center justify-between text-base">
-                    <p className="text-blue-600">Total length of stay</p>
+                <div className="flex items-center justify-between text-base">
+                  <p className="text-blue-600">Total length of stay</p>
                     <p className="font-medium text-black">
                       {nights} night{nights !== 1 ? "s" : ""}
                     </p>
@@ -303,14 +303,14 @@ export default function SelectDatePage({ params }: PageProps) {
                     <p className="font-medium text-black">
                       ${formatPrice(room.price)}
                     </p>
-                  </div>
-                  <div className="flex items-center justify-between text-base">
-                    <p className="text-blue-600">Total price</p>
-                    <p className="font-medium text-black">
-                      ${totalPrice.toFixed(2)}
-                    </p>
-                  </div>
                 </div>
+                <div className="flex items-center justify-between text-base">
+                  <p className="text-blue-600">Total price</p>
+                  <p className="font-medium text-black">
+                      ${totalPrice.toFixed(2)}
+                  </p>
+                </div>
+              </div>
               )}
 
               {/* Guests Field */}
@@ -321,15 +321,15 @@ export default function SelectDatePage({ params }: PageProps) {
                 >
                   Number of Guests (Max: {room.maxGuest})
                 </label>
-                <input
+                  <input
                   type="number"
-                  id="guests"
+                    id="guests"
                   min="1"
                   max={room.maxGuest}
-                  value={guests}
-                  onChange={(e) => setGuests(e.target.value)}
-                  className="bg-white border border-[#d5d7da] rounded-lg px-3.5 py-2.5 text-base text-[#181d27] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent w-full"
-                />
+                    value={guests}
+                    onChange={(e) => setGuests(e.target.value)}
+                    className="bg-white border border-[#d5d7da] rounded-lg px-3.5 py-2.5 text-base text-[#181d27] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent w-full"
+                  />
               </div>
             </div>
 
@@ -357,7 +357,7 @@ export default function SelectDatePage({ params }: PageProps) {
                 ) : (
                   "Continue"
                 )}
-              </Button>
+                </Button>
             </div>
           </div>
         </div>

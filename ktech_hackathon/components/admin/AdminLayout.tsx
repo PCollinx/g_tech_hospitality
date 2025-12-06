@@ -19,7 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { storage } from "@/lib/storage";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -36,13 +36,30 @@ interface NavContentProps {
   isActive: (path: string) => boolean;
   router: ReturnType<typeof useRouter>;
   setIsMobileSidebarOpen: (open: boolean) => void;
+  handleLogout: () => void;
+  user: any;
 }
+
+const getInitials = (firstName?: string, lastName?: string) => {
+  if (!firstName && !lastName) return "U";
+  const first = firstName?.charAt(0).toUpperCase() || "";
+  const last = lastName?.charAt(0).toUpperCase() || "";
+  return `${first}${last}` || "U";
+};
+
+const getRoleDisplay = (role?: string) => {
+  if (role === "admin" || role === "super-admin") return "Administrator";
+  if (role === "staff") return "Staff";
+  return "User";
+};
 
 function NavContent({
   navigationItems,
   isActive,
   router,
   setIsMobileSidebarOpen,
+  handleLogout,
+  user,
 }: NavContentProps) {
   return (
     <>
@@ -123,8 +140,8 @@ function NavContent({
         <div className="flex items-start justify-between px-2">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-              <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-400 to-blue-600 text-white font-semibold">
-                DK
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 text-white font-semibold text-sm">
+                {getInitials(user?.firstName, user?.lastName)}
               </div>
             </div>
             <div className="flex flex-col text-sm leading-5">
@@ -132,13 +149,15 @@ function NavContent({
                 className="font-semibold text-black"
                 style={{ fontFamily: "Pretendard, sans-serif" }}
               >
-                Daniel Kyle
+                {user?.firstName && user?.lastName
+                  ? `${user.firstName} ${user.lastName}`
+                  : user?.email || "User"}
               </p>
               <p
                 className="text-blue-600"
                 style={{ fontFamily: "Pretendard, sans-serif" }}
               >
-                Administrator
+                {getRoleDisplay(user?.role)}
               </p>
             </div>
           </div>
@@ -155,6 +174,7 @@ function NavContent({
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
+  const { data: session } = useSession();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -163,8 +183,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   useEffect(() => {
     const token = storage.getAccessToken();
     const storedUser = storage.getUser();
+    const sessionUser = session?.user as any;
 
-    if (!token || !storedUser) {
+    const currentUser = storedUser || sessionUser;
+    setUser(currentUser);
+
+    if (!token || !currentUser) {
       router.push("/login");
       return;
     }
@@ -238,6 +262,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           isActive={isActive}
           router={router}
           setIsMobileSidebarOpen={setIsMobileSidebarOpen}
+          handleLogout={handleLogout}
+          user={user}
         />
       </aside>
 
@@ -344,8 +370,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <div className="flex items-start justify-between px-2">
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-                      <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-400 to-blue-600 text-white font-semibold">
-                        DK
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 text-white font-semibold text-sm">
+                        {getInitials(user?.firstName, user?.lastName)}
                       </div>
                     </div>
                     <div className="flex flex-col text-sm leading-5">
@@ -353,18 +379,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         className="font-semibold text-black"
                         style={{ fontFamily: "Pretendard, sans-serif" }}
                       >
-                        Daniel Kyle
+                        {user?.firstName && user?.lastName
+                          ? `${user.firstName} ${user.lastName}`
+                          : user?.email || "User"}
                       </p>
                       <p
                         className="text-blue-600"
                         style={{ fontFamily: "Pretendard, sans-serif" }}
                       >
-                        Administrator
+                        {getRoleDisplay(user?.role)}
                       </p>
                     </div>
                   </div>
                   <button
-                    onClick={handleLogout}
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileSidebarOpen(false);
+                    }}
                     className="w-5 h-5 flex items-center justify-center"
                   >
                     <LogOut className="w-5 h-5 text-gray-600" />
@@ -391,7 +422,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               className="text-lg sm:text-xl lg:text-2xl font-semibold leading-tight sm:leading-7 lg:leading-8 text-[#181d27]"
               style={{ fontFamily: "Geist, sans-serif" }}
             >
-              Welcome back, Daniel 👋
+              Welcome back, {user?.firstName || "Admin"} 
             </h1>
             <p
               className="text-sm sm:text-base leading-5 sm:leading-6 text-[#535862]"

@@ -1,6 +1,13 @@
 "use client";
 
-import { LayoutGrid, Grid3x3, FileText, Settings, LogOut, X } from "lucide-react";
+import {
+  LayoutGrid,
+  Grid3x3,
+  FileText,
+  Settings,
+  LogOut,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -137,8 +144,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 />
               </div>
               <div className="flex flex-col text-sm">
-                <p className="font-semibold text-white">Daniel Kyle</p>
-                <p className="text-[#92b1f5]">danielkyl@gmail.com</p>
+                <p className="font-semibold text-white">
+                  {user?.firstName && user?.lastName
+                    ? `${user.firstName} ${user.lastName}`
+                    : user?.email || "User"}
+                </p>
+                <p className="text-[#92b1f5]">{user?.email || ""}</p>
               </div>
             </div>
             <button
@@ -275,8 +286,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         />
                       </div>
                       <div className="flex flex-col text-sm">
-                        <p className="font-semibold text-white">Daniel Kyle</p>
-                        <p className="text-[#92b1f5]">danielkyl@gmail.com</p>
+                        <p className="font-semibold text-white">
+                          {user?.firstName && user?.lastName
+                            ? `${user.firstName} ${user.lastName}`
+                            : user?.email || "User"}
+                        </p>
+                        <p className="text-[#92b1f5]">{user?.email || ""}</p>
                       </div>
                     </div>
                     <button onClick={handleLogout} className="p-2">
@@ -305,7 +320,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Welcome Message */}
           <div className="flex flex-col gap-2">
             <h1 className="font-['Geist'] font-semibold text-lg sm:text-xl lg:text-2xl text-[#181d27] leading-tight sm:leading-7 lg:leading-8">
-              Welcome back, Daniel 👋
+              Welcome back, {user?.firstName || "Guest"}
             </h1>
             <p className="font-['Geist'] font-normal text-sm sm:text-base text-[#535862] leading-5 sm:leading-6">
               Here&apos;s everything about your upcoming stay.
@@ -325,8 +340,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#12b76a] border-[1.5px] border-white rounded-full" />
             </div>
             <div className="flex flex-col text-sm">
-              <p className="font-semibold text-[#181d27]">Daniel Kyle</p>
-              <p className="text-[#535862]">danielkyl@gmail.com</p>
+              <p className="font-semibold text-[#181d27]">
+                {user?.firstName && user?.lastName
+                  ? `${user.firstName} ${user.lastName}`
+                  : user?.email || "User"}
+              </p>
+              <p className="text-[#535862]">{user?.email || ""}</p>
             </div>
           </div>
         </header>
