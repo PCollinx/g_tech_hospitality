@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -18,6 +18,8 @@ import {
   Grid3x3,
   X,
 } from "lucide-react";
+import { storage } from "@/lib/storage";
+import { signOut } from "next-auth/react";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -140,7 +142,10 @@ function NavContent({
               </p>
             </div>
           </div>
-          <button className="w-5 h-5 flex items-center justify-center">
+          <button
+            onClick={handleLogout}
+            className="w-5 h-5 flex items-center justify-center"
+          >
             <LogOut className="w-5 h-5 text-gray-600" />
           </button>
         </div>
@@ -153,6 +158,31 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const token = storage.getAccessToken();
+    const storedUser = storage.getUser();
+
+    if (!token || !storedUser) {
+      router.push("/login");
+      return;
+    }
+
+    const userRole = storedUser?.role || "guest";
+    if (userRole !== "admin" && userRole !== "super-admin") {
+      router.push("/dashboard");
+      return;
+    }
+
+    setUser(storedUser);
+  }, [router]);
+
+  const handleLogout = async () => {
+    storage.clearAuth();
+    await signOut({ redirect: false });
+    router.push("/login");
+  };
 
   const isActive = (path: string) => pathname === path;
 
@@ -333,7 +363,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       </p>
                     </div>
                   </div>
-                  <button className="w-5 h-5 flex items-center justify-center">
+                  <button
+                    onClick={handleLogout}
+                    className="w-5 h-5 flex items-center justify-center"
+                  >
                     <LogOut className="w-5 h-5 text-gray-600" />
                   </button>
                 </div>

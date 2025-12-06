@@ -1,15 +1,54 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, Wifi, Coffee, Tv, Wind, Bath, Wine } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  ChevronLeft,
+  Wifi,
+  Coffee,
+  Tv,
+  Wind,
+  Bath,
+  Wine,
+  Users,
+  Bed,
+  Eye,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getRoomById } from "@/lib/mockData";
+import { toast } from "react-toastify";
+import axiosInstance from "@/lib/axios";
+import { storage } from "@/lib/storage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SignUpDialog from "@/components/SignUpDialog";
 import LoginDialog from "@/components/LoginDialog";
+
+interface Room {
+  _id: string;
+  number: number;
+  alphabet: string;
+  category: string;
+  price: number;
+  maxGuest: number;
+  bedType: string;
+  oceanView: boolean;
+  isBooked: boolean;
+  status: string;
+  images: string[];
+}
+
+interface BookingData {
+  roomId: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  nights: number;
+  totalPrice: number;
+  roomPrice: number;
+}
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -17,36 +56,199 @@ interface PageProps {
 
 export default function ConfirmPage({ params }: PageProps) {
   const resolvedParams = use(params);
-  const roomId = parseInt(resolvedParams.id);
-  const room = getRoomById(roomId);
+  const roomId = resolvedParams.id;
+  const router = useRouter();
+  const [room, setRoom] = useState<Room | null>(null);
+  const [bookingData, setBookingData] = useState<BookingData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  if (!room) {
+  useEffect(() => {
+    checkAuth();
+    fetchRoom();
+    loadBookingData();
+  }, [roomId]);
+
+  const checkAuth = () => {
+    const token = storage.getAccessToken();
+    const user = storage.getUser();
+    setIsAuthenticated(!!token && !!user);
+  };
+
+  const fetchRoom = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(`/rooms/${roomId}`);
+      const roomData =
+        response.data.doc || response.data.data?.room || response.data.data;
+      if (!roomData) {
+        toast.error("Room not found");
+        router.push("/rooms");
+        return;
+      }
+      setRoom(roomData);
+    } catch (error: any) {
+      console.error("Error fetching room:", error);
+      toast.error("Failed to load room details");
+      router.push("/rooms");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadBookingData = () => {
+    const stored = sessionStorage.getItem("bookingData");
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        if (data.roomId === roomId) {
+          setBookingData(data);
+        } else {
+          toast.error("Booking data mismatch. Please start over.");
+          router.push(`/rooms/${roomId}/select-date`);
+        }
+      } catch (error) {
+        console.error("Error parsing booking data:", error);
+        router.push(`/rooms/${roomId}/select-date`);
+      }
+    } else {
+      toast.error("No booking data found. Please select dates first.");
+      router.push(`/rooms/${roomId}/select-date`);
+    }
+  };
+
+  const handleConfirmBooking = async () => {
+    if (!isAuthenticated) {
+      setShowSignUp(true);
+      return;
+    }
+
+    if (!bookingData || !room) {
+      toast.error("Missing booking information");
+      return;
+    }
+
+    try {
+      setCreating(true);
+
+      // Calculate total price in cents (backend expects price in cents)
+      const totalPriceInCents = Math.round(bookingData.totalPrice * 100);
+
+      const bookingPayload = {
+        room: room._id,
+        startDate: new Date(bookingData.checkIn).toISOString(),
+        endDate: new Date(bookingData.checkOut).toISOString(),
+        totalPrice: totalPriceInCents,
+        paymentMethod: "online payment", // Default payment method
+        paymentName:
+          storage.getUser()?.firstName + " " + storage.getUser()?.lastName ||
+          "Guest",
+      };
+
+      const response = await axiosInstance.post("/bookings", bookingPayload);
+
+      // Clear booking data from sessionStorage
+      sessionStorage.removeItem("bookingData");
+
+      toast.success("Booking confirmed successfully!");
+
+      // Redirect to booking confirmation page or dashboard
+      const bookingId =
+        response.data.data?.booking?._id || response.data.data?._id;
+      if (bookingId) {
+        router.push(
+          `/rooms/booking-code?code=${
+            response.data.data?.booking?.confirmationCode ||
+            response.data.data?.confirmationCode
+          }`
+        );
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (error: any) {
+      console.error("Error creating booking:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to create booking. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const formatPrice = (price: number) => {
+    return (price / 100).toFixed(2);
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const getRoomName = (room: Room) => {
+    const categoryMap: { [key: string]: string } = {
+      standard: "Standard Room",
+      deluxe: "Deluxe Room",
+      suite: "Suite",
+    };
+    return `${categoryMap[room.category] || room.category} ${room.alphabet}${
+      room.number
+    }`;
+  };
+
+  const getRoomDescription = (room: Room) => {
+    return `Comfortable ${room.category} room with ${
+      room.bedType
+    } bed, perfect for ${room.maxGuest} guest${room.maxGuest > 1 ? "s" : ""}.`;
+  };
+
+  // Calculate taxes (10% of total price)
+  const taxesAndFees = bookingData ? bookingData.totalPrice * 0.1 : 0;
+  const grandTotal = bookingData ? bookingData.totalPrice + taxesAndFees : 0;
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen bg-white pt-32 px-4">
+          <div className="max-w-[1440px] mx-auto text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading booking details...</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!room || !bookingData) {
     return (
       <>
         <Navbar />
         <main className="min-h-screen bg-white pt-32 px-4">
           <div className="max-w-[1440px] mx-auto text-center">
             <h1 className="text-2xl font-semibold text-gray-900 mb-4">
-              Room not found
+              Booking information not found
             </h1>
-            <Link href="/">
+            <Link href={`/rooms/${roomId}/select-date`}>
               <Button className="bg-blue-600 hover:bg-blue-700">
-                Back to Home
+                Select Dates
               </Button>
             </Link>
           </div>
         </main>
+        <Footer />
       </>
     );
   }
-
-  // Mock booking data
-  const nights = 5;
-  const totalPrice = room.price * nights;
-  const taxesAndFees = 1200;
-  const grandTotal = totalPrice + taxesAndFees;
 
   return (
     <>
@@ -102,8 +304,8 @@ export default function ConfirmPage({ params }: PageProps) {
               <div className="flex gap-5">
                 <div className="relative w-[182px] h-[123px] rounded-2xl overflow-hidden bg-gray-200 flex-shrink-0">
                   <Image
-                    src={room.image}
-                    alt={room.name}
+                    src={room.images?.[0] || "/placeholder-room.jpg"}
+                    alt={getRoomName(room)}
                     fill
                     className="object-cover"
                     sizes="182px"
@@ -112,10 +314,18 @@ export default function ConfirmPage({ params }: PageProps) {
                 </div>
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-col text-base leading-6">
-                    <p className="font-semibold text-black">{room.name}</p>
-                    <p className="text-[#717680]">Feb 11, 2024 → Nov 11</p>
+                    <p className="font-semibold text-black">
+                      {getRoomName(room)}
+                    </p>
+                    <p className="text-[#717680]">
+                      {formatDate(bookingData.checkIn)} →{" "}
+                      {formatDate(bookingData.checkOut)}
+                    </p>
                   </div>
-                  <p className="text-xs text-[#717680]">2 Guests</p>
+                  <p className="text-xs text-[#717680]">
+                    {bookingData.guests} Guest
+                    {bookingData.guests !== 1 ? "s" : ""}
+                  </p>
                 </div>
               </div>
 
@@ -123,22 +333,24 @@ export default function ConfirmPage({ params }: PageProps) {
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between text-base">
                   <p className="text-[#717680]">
-                    ${room.price} × {nights} nights
+                    ${formatPrice(room.price)} × {bookingData.nights} night
+                    {bookingData.nights !== 1 ? "s" : ""}
                   </p>
                   <p className="font-medium text-[#414651]">
-                    ${totalPrice.toLocaleString()}
+                    ${bookingData.totalPrice.toFixed(2)}
                   </p>
                 </div>
                 <div className="flex items-center justify-between text-base">
                   <p className="text-[#717680]">Taxes & fees</p>
                   <p className="font-medium text-[#414651]">
-                    ${taxesAndFees.toLocaleString()}
+                    ${taxesAndFees.toFixed(2)}
                   </p>
                 </div>
+                <div className="h-px bg-[#d5d7da] my-1" />
                 <div className="flex items-center justify-between text-base">
                   <p className="text-[#717680]">Total</p>
                   <p className="font-semibold text-[#181d27]">
-                    ${grandTotal.toLocaleString()}
+                    ${grandTotal.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -148,16 +360,27 @@ export default function ConfirmPage({ params }: PageProps) {
                 <Link href={`/rooms/${roomId}/select-date`} className="w-full">
                   <Button
                     variant="outline"
-                    className="w-full bg-[#e9f0fd] border-[#e9f0fd] text-[#19429d] hover:bg-[#d0e1fc] hover:border-[#d0e1fc] font-semibold text-base px-5 py-3 rounded-[50px] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)]"
+                    disabled={creating}
+                    className="w-full bg-[#e9f0fd] border-[#e9f0fd] text-[#19429d] hover:bg-[#d0e1fc] hover:border-[#d0e1fc] font-semibold text-base px-5 py-6 rounded-[50px] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px]"
                   >
                     Back
                   </Button>
                 </Link>
                 <Button
-                  onClick={() => setShowSignUp(true)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base px-5 py-3 rounded-[50px] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)]"
+                  onClick={handleConfirmBooking}
+                  disabled={creating}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base px-5 py-6 rounded-[50px] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] flex items-center justify-center gap-2"
                 >
-                  Confirm
+                  {creating ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Confirming...
+                    </>
+                  ) : isAuthenticated ? (
+                    "Confirm Booking"
+                  ) : (
+                    "Sign In to Confirm"
+                  )}
                 </Button>
               </div>
             </div>
@@ -167,8 +390,8 @@ export default function ConfirmPage({ params }: PageProps) {
               {/* Room Image */}
               <div className="relative w-full h-[275px] rounded-2xl overflow-hidden bg-gray-200">
                 <Image
-                  src={room.image}
-                  alt={room.name}
+                  src={room.images?.[0] || "/placeholder-room.jpg"}
+                  alt={getRoomName(room)}
                   fill
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 485px"
@@ -180,18 +403,36 @@ export default function ConfirmPage({ params }: PageProps) {
               <div className="flex flex-col gap-4">
                 {/* Basic Info */}
                 <div className="flex flex-col gap-2">
-                  <p className="text-lg text-[#181d27]">{room.name}</p>
+                  <p className="text-lg text-[#181d27]">{getRoomName(room)}</p>
                   <p className="text-base text-[#717680]">
-                    ${room.price} per night
+                    ${formatPrice(room.price)} per night
                   </p>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs text-[#717680]">
-                      {room.sqft} sq ft
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <Users className="w-4 h-4 text-[#717680]" />
+                      <span className="text-xs text-[#717680]">
+                        Up to {room.maxGuest} guest
+                        {room.maxGuest > 1 ? "s" : ""}
+                      </span>
+                    </div>
                     <div className="w-1 h-1 rounded-full bg-[#a4a7ae]" />
-                    <span className="text-xs text-[#717680]">
-                      Up to {room.guests} guests
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <Bed className="w-4 h-4 text-[#717680]" />
+                      <span className="text-xs text-[#717680] capitalize">
+                        {room.bedType} bed
+                      </span>
+                    </div>
+                    {room.oceanView && (
+                      <>
+                        <div className="w-1 h-1 rounded-full bg-[#a4a7ae]" />
+                        <div className="flex items-center gap-1">
+                          <Eye className="w-4 h-4 text-[#717680]" />
+                          <span className="text-xs text-[#717680]">
+                            Ocean View
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -201,7 +442,7 @@ export default function ConfirmPage({ params }: PageProps) {
                     Description
                   </p>
                   <p className="text-base text-[#717680]">
-                    {room.fullDescription}
+                    {getRoomDescription(room)}
                   </p>
                 </div>
 
@@ -220,14 +461,12 @@ export default function ConfirmPage({ params }: PageProps) {
                     <div className="flex items-center gap-2">
                       <Coffee className="w-[18px] h-[18px] text-black" />
                       <span className="text-xs text-[#252b37]">
-                        Espresso machine
+                        Coffee maker
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Tv className="w-[18px] h-[18px] text-black" />
-                      <span className="text-xs text-[#252b37]">
-                        65&quot; Smart TV
-                      </span>
+                      <span className="text-xs text-[#252b37]">Smart TV</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Wind className="w-[18px] h-[18px] text-black" />
@@ -238,14 +477,12 @@ export default function ConfirmPage({ params }: PageProps) {
                     <div className="flex items-center gap-2">
                       <Bath className="w-[18px] h-[18px] text-black" />
                       <span className="text-xs text-[#252b37]">
-                        Soaking tub
+                        Modern bathroom
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Wine className="w-[18px] h-[18px] text-black" />
-                      <span className="text-xs text-[#252b37]">
-                        Premium bar
-                      </span>
+                      <span className="text-xs text-[#252b37]">Mini bar</span>
                     </div>
                   </div>
                 </div>
@@ -254,23 +491,33 @@ export default function ConfirmPage({ params }: PageProps) {
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between text-sm">
                     <p className="text-[#717680]">Check-in</p>
-                    <p className="font-medium text-[#414651]">Feb 11</p>
+                    <p className="font-medium text-[#414651]">
+                      {formatDate(bookingData.checkIn)}
+                    </p>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <p className="text-[#717680]">Check-out</p>
-                    <p className="font-medium text-[#414651]">Nov 11</p>
+                    <p className="font-medium text-[#414651]">
+                      {formatDate(bookingData.checkOut)}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <p className="text-[#717680]">Nights</p>
+                    <p className="font-medium text-[#414651]">
+                      {bookingData.nights}
+                    </p>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <p className="text-[#717680]">Taxes & fees</p>
                     <p className="font-medium text-[#414651]">
-                      ${taxesAndFees.toLocaleString()}
+                      ${taxesAndFees.toFixed(2)}
                     </p>
                   </div>
                   <div className="h-px bg-[#d5d7da] my-1" />
                   <div className="flex items-center justify-between text-base">
                     <p className="text-[#717680]">Total</p>
                     <p className="font-semibold text-[#181d27]">
-                      ${grandTotal.toLocaleString()}
+                      ${grandTotal.toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -285,7 +532,12 @@ export default function ConfirmPage({ params }: PageProps) {
       {/* Sign Up Dialog */}
       <SignUpDialog
         open={showSignUp}
-        onOpenChange={setShowSignUp}
+        onOpenChange={(open) => {
+          setShowSignUp(open);
+          if (!open) {
+            checkAuth();
+          }
+        }}
         onSwitchToLogin={() => {
           setShowSignUp(false);
           setTimeout(() => setShowLogin(true), 300);
@@ -295,7 +547,12 @@ export default function ConfirmPage({ params }: PageProps) {
       {/* Login Dialog */}
       <LoginDialog
         open={showLogin}
-        onOpenChange={setShowLogin}
+        onOpenChange={(open) => {
+          setShowLogin(open);
+          if (!open) {
+            checkAuth();
+          }
+        }}
         onSwitchToSignUp={() => {
           setShowLogin(false);
           setTimeout(() => setShowSignUp(true), 300);

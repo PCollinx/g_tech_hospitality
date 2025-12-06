@@ -2,9 +2,11 @@
 
 import { LayoutGrid, Grid3x3, FileText, Settings, LogOut, X } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { storage } from "@/lib/storage";
+import { signOut } from "next-auth/react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -14,6 +16,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const token = storage.getAccessToken();
+    const storedUser = storage.getUser();
+
+    if (!token || !storedUser) {
+      router.push("/login");
+      return;
+    }
+
+    const userRole = storedUser?.role || "guest";
+    if (userRole === "admin" || userRole === "super-admin") {
+      router.push("/admin");
+      return;
+    }
+
+    setUser(storedUser);
+  }, [router]);
+
+  const handleLogout = async () => {
+    storage.clearAuth();
+    await signOut({ redirect: false });
+    router.push("/login");
+  };
 
   const isActive = (path: string) => pathname === path;
 
@@ -114,7 +141,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <p className="text-[#92b1f5]">danielkyl@gmail.com</p>
               </div>
             </div>
-            <button className="p-2 hover:bg-[#19429d]/20 rounded">
+            <button
+              onClick={handleLogout}
+              className="p-2 hover:bg-[#19429d]/20 rounded"
+            >
               <LogOut className="w-5 h-5 text-white" />
             </button>
           </div>
@@ -249,7 +279,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         <p className="text-[#92b1f5]">danielkyl@gmail.com</p>
                       </div>
                     </div>
-                    <button className="p-2">
+                    <button onClick={handleLogout} className="p-2">
                       <LogOut className="w-5 h-5 text-white" />
                     </button>
                   </div>

@@ -1,33 +1,83 @@
 "use client";
 
 import Link from "next/link";
-import { AlignLeft, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { AlignLeft, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { storage } from "@/lib/storage";
 
 export default function Navbar() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isDarkBackground, setIsDarkBackground] = useState(false); // Start with light/safe default
+  const [isDarkBackground, setIsDarkBackground] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = storage.getAccessToken();
+      const storedUser = storage.getUser();
+      setIsAuthenticated(!!token && !!storedUser);
+      setUser(storedUser);
+    };
+
+    checkAuth();
+
+    // Check auth on storage changes
+    const interval = setInterval(checkAuth, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleLogout = async () => {
+    storage.clearAuth();
+    await signOut({ redirect: false });
+    setIsAuthenticated(false);
+    setUser(null);
+    router.push("/");
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== "undefined") {
+        setWindowWidth(window.innerWidth);
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      setWindowWidth(window.innerWidth);
+      window.addEventListener("resize", handleResize);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
+      if (typeof window === "undefined") return;
+
       const scrollY = window.scrollY;
       setIsScrolled(scrollY > 50);
 
-      // Detect if background is dark or light based on scroll position
-      // Check if we're on homepage with hero (path is "/") and not scrolled much
       const isHomePage = window.location.pathname === "/";
       const isInHeroSection = scrollY < 400;
 
-      // Only show white text if on homepage AND in hero section
       setIsDarkBackground(isHomePage && isInHeroSection);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Check initial state
-    return () => window.removeEventListener("scroll", handleScroll);
+    if (typeof window !== "undefined") {
+      window.addEventListener("scroll", handleScroll);
+      handleScroll();
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
   }, []);
 
   return (
@@ -41,10 +91,10 @@ export default function Navbar() {
         style={{ overflow: "hidden" }}
         initial={false}
         animate={{
-          marginTop: isMenuOpen ? "0px" : window.innerWidth >= 640 ? "40px" : "24px",
-          marginLeft: isMenuOpen ? "0px" : window.innerWidth >= 640 ? "5%" : "3%",
-          marginRight: isMenuOpen ? "0px" : window.innerWidth >= 640 ? "5%" : "3%",
-          width: isMenuOpen ? "100%" : window.innerWidth >= 640 ? "90%" : "94%",
+          marginTop: isMenuOpen ? "0px" : windowWidth >= 640 ? "40px" : "24px",
+          marginLeft: isMenuOpen ? "0px" : windowWidth >= 640 ? "5%" : "3%",
+          marginRight: isMenuOpen ? "0px" : windowWidth >= 640 ? "5%" : "3%",
+          width: isMenuOpen ? "100%" : windowWidth >= 640 ? "90%" : "94%",
           maxWidth: isMenuOpen ? "100%" : "1200px",
           borderRadius: isMenuOpen ? "0px" : "100px",
           paddingTop: isMenuOpen ? "20px" : "8px",
@@ -97,7 +147,11 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="shrink-0">
             <motion.img
-              src={isDarkBackground && !isScrolled ? "/dashboard-logo.svg" : "/logo.svg"}
+              src={
+                isDarkBackground && !isScrolled
+                  ? "/dashboard-logo.svg"
+                  : "/logo.svg"
+              }
               alt="luxehaven"
               className="h-7 sm:h-8 md:h-9 w-auto"
               initial={false}
@@ -131,14 +185,25 @@ export default function Navbar() {
                 About
               </Link>
             </div>
-            <Link href="/signup">
+            {isAuthenticated ? (
               <Button
+                onClick={handleLogout}
                 size="default"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-6 shadow-sm"
+                className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full px-6 shadow-sm flex items-center gap-2"
               >
-                Sign Up
+                <LogOut className="w-4 h-4" />
+                Logout
               </Button>
-            </Link>
+            ) : (
+              <Link href="/signup">
+                <Button
+                  size="default"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-6 shadow-sm"
+                >
+                  Sign Up
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -177,11 +242,11 @@ export default function Navbar() {
                 <motion.div
                   initial={{ y: -10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ 
+                  transition={{
                     delay: 0.1,
                     type: "spring",
                     stiffness: 300,
-                    damping: 25
+                    damping: 25,
                   }}
                 >
                   <Link
@@ -199,11 +264,11 @@ export default function Navbar() {
                 <motion.div
                   initial={{ y: -10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ 
+                  transition={{
                     delay: 0.15,
                     type: "spring",
                     stiffness: 300,
-                    damping: 25
+                    damping: 25,
                   }}
                 >
                   <Link
@@ -218,30 +283,64 @@ export default function Navbar() {
                     About
                   </Link>
                 </motion.div>
-                <motion.div
-                  initial={{ y: -10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ 
-                    delay: 0.2,
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 25
-                  }}
-                  className={`pt-2 mt-2 ${
-                    isDarkBackground && !isScrolled
-                      ? "border-t border-white/20"
-                      : "border-t border-gray-200"
-                  }`}
-                >
-                  <Link href="/signup" onClick={() => setIsMenuOpen(false)} className="block">
+                {isAuthenticated ? (
+                  <motion.div
+                    initial={{ y: -10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                      delay: 0.2,
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 25,
+                    }}
+                    className={`pt-2 mt-2 ${
+                      isDarkBackground && !isScrolled
+                        ? "border-t border-white/20"
+                        : "border-t border-gray-200"
+                    }`}
+                  >
                     <Button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMenuOpen(false);
+                      }}
                       size="default"
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full w-full"
+                      className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full w-full flex items-center justify-center gap-2"
                     >
-                      Sign Up
+                      <LogOut className="w-4 h-4" />
+                      Logout
                     </Button>
-                  </Link>
-                </motion.div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ y: -10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                      delay: 0.2,
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 25,
+                    }}
+                    className={`pt-2 mt-2 ${
+                      isDarkBackground && !isScrolled
+                        ? "border-t border-white/20"
+                        : "border-t border-gray-200"
+                    }`}
+                  >
+                    <Link
+                      href="/signup"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block"
+                    >
+                      <Button
+                        size="default"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full w-full"
+                      >
+                        Sign Up
+                      </Button>
+                    </Link>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
           )}

@@ -26,7 +26,12 @@ export default function Hero() {
     if (checkOut) params.append("checkOut", checkOut);
     if (guests) params.append("guests", guests);
 
-    router.push(`/#rooms${params.toString() ? `?${params.toString()}` : ""}`);
+    // If there are search params, go to rooms page, otherwise scroll to rooms section
+    if (params.toString()) {
+      router.push(`/rooms?${params.toString()}`);
+    } else {
+      router.push(`/#rooms`);
+    }
   };
 
   return (

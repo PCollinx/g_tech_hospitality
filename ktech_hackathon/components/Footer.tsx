@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Youtube,
-  Github,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -32,103 +24,19 @@ export default function Footer() {
           {/* Footer Content */}
           <div className="flex flex-col justify-center gap-8 md:gap-12">
             {/* Footer Links */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-6">
+            <div className="flex flex-wrap justify-center gap-8 md:gap-12">
               {/* About */}
               <div className="flex flex-col gap-4 md:gap-6">
                 <h3 className="text-base md:text-lg lg:text-xl font-medium">
                   About
                 </h3>
                 <div className="flex flex-col gap-3 md:gap-4 text-xs md:text-sm opacity-70">
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    How it works
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Newsroom
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Careers
-                  </a>
-                </div>
-              </div>
-
-              {/* Support */}
-              <div className="flex flex-col gap-4 md:gap-6">
-                <h3 className="text-base md:text-lg lg:text-xl font-medium">
-                  Support
-                </h3>
-                <div className="flex flex-col gap-3 md:gap-4 text-xs md:text-sm opacity-70">
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Help Center
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Safety
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Cancellation
-                  </a>
-                </div>
-              </div>
-
-              {/* Resources */}
-              <div className="flex flex-col gap-4 md:gap-6">
-                <h3 className="text-base md:text-lg lg:text-xl font-medium">
-                  Resources
-                </h3>
-                <div className="flex flex-col gap-3 md:gap-4 text-xs md:text-sm opacity-70">
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Documentation
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    API Overview
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    System Requirements
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Onboarding Guide
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Knowledge Base
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Release Notes
-                  </a>
-                </div>
-              </div>
-
-              {/* Community */}
-              <div className="flex flex-col gap-4 md:gap-6">
-                <h3 className="text-base md:text-lg lg:text-xl font-medium">
-                  Community
-                </h3>
-                <div className="flex flex-col gap-3 md:gap-4 text-xs md:text-sm opacity-70">
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Blog
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Forums
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Referrals
-                  </a>
-                </div>
-              </div>
-
-              {/* Luxe Haven */}
-              <div className="flex flex-col gap-4 md:gap-6">
-                <h3 className="text-base md:text-lg lg:text-xl font-medium">
-                  Luxe Haven
-                </h3>
-                <div className="flex flex-col gap-3 md:gap-4 text-xs md:text-sm opacity-70">
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Terms of Service
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Privacy Policy
-                  </a>
-                  <a href="#" className="hover:opacity-100 transition-opacity">
-                    Sitemap
-                  </a>
+                  <Link
+                    href="/about"
+                    className="hover:opacity-100 transition-opacity"
+                  >
+                    About Us
+                  </Link>
                 </div>
               </div>
             </div>
@@ -141,28 +49,6 @@ export default function Footer() {
                   © 2025 luxehaven. All rights reserved. Designed & Built with
                   ❤️ at the KTech Fest Hackathon 2025.
                 </p>
-
-                {/* Social Icons */}
-                <div className="flex items-center gap-4 md:gap-6">
-                  <a href="#" className="hover:opacity-75 transition-opacity">
-                    <Facebook className="w-5 h-5" />
-                  </a>
-                  <a href="#" className="hover:opacity-75 transition-opacity">
-                    <Twitter className="w-5 h-5" />
-                  </a>
-                  <a href="#" className="hover:opacity-75 transition-opacity">
-                    <Instagram className="w-5 h-5" />
-                  </a>
-                  <a href="#" className="hover:opacity-75 transition-opacity">
-                    <Linkedin className="w-5 h-5" />
-                  </a>
-                  <a href="#" className="hover:opacity-75 transition-opacity">
-                    <Youtube className="w-5 h-5" />
-                  </a>
-                  <a href="#" className="hover:opacity-75 transition-opacity">
-                    <Github className="w-5 h-5" />
-                  </a>
-                </div>
               </div>
 
               {/* Description */}

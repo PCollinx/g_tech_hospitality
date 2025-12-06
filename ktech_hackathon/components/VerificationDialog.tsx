@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface VerificationDialogProps {
   open: boolean;
@@ -12,6 +12,8 @@ interface VerificationDialogProps {
     idNumber: string;
     idType: string;
     expires: string;
+    riskScore?: number;
+    ninVerified?: boolean;
   };
 }
 
@@ -29,13 +31,18 @@ export default function VerificationDialog({
   const handleContinue = () => {
     onContinue?.();
     onOpenChange(false);
-    // Navigate to booking code page
-    window.location.href = "/rooms/booking-code";
   };
+
+  const riskScore = userData?.riskScore ?? 10;
+  const isLowRisk = riskScore <= 50;
+  const riskColor = isLowRisk ? "#039855" : riskScore <= 75 ? "#F79009" : "#D92D20";
+  const riskBgColor = isLowRisk ? "#ecfdf3" : riskScore <= 75 ? "#FEF3C7" : "#FEE4E2";
+  const riskBorderColor = isLowRisk ? "#12b76a" : riskScore <= 75 ? "#F79009" : "#D92D20";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[90vw] sm:max-w-[500px] max-h-[90vh] overflow-y-auto p-0 gap-0">
+        <DialogTitle className="sr-only">Verification Results</DialogTitle>
         <div className="bg-white flex flex-col gap-6 sm:gap-8 p-6 sm:p-8 rounded-2xl">
           {/* Header */}
           <div className="flex flex-col gap-4 sm:gap-6 items-center">
@@ -76,7 +83,13 @@ export default function VerificationDialog({
           {/* Content */}
           <div className="flex flex-col gap-4">
             {/* Risk Score Card */}
-            <div className="bg-[#ecfdf3] border border-[#12b76a] rounded-2xl p-4 relative overflow-hidden">
+            <div
+              className="rounded-2xl p-4 relative overflow-hidden border"
+              style={{
+                backgroundColor: riskBgColor,
+                borderColor: riskBorderColor,
+              }}
+            >
               {/* Background Check Icon */}
               <div className="absolute -bottom-11 -right-4 opacity-[0.06] w-[176px] h-[176px]">
                 <svg
@@ -88,7 +101,7 @@ export default function VerificationDialog({
                 >
                   <path
                     d="M88 44C63.7 44 44 63.7 44 88C44 112.3 63.7 132 88 132C112.3 132 132 112.3 132 88C132 63.7 112.3 44 88 44ZM75.68 107.36L57.2 88.88L63.36 82.72L75.68 95.04L112.64 58.08L118.8 64.24L75.68 107.36Z"
-                    fill="#039855"
+                    fill={riskColor}
                   />
                 </svg>
               </div>
@@ -98,14 +111,23 @@ export default function VerificationDialog({
                   <p className="text-sm text-black mb-1">Risk Score</p>
                   <div className="flex items-center gap-3">
                     <div className="flex-1 h-2 bg-[#d5d7da] rounded-full relative">
-                      <div className="absolute left-0 top-0 h-2 bg-[#039855] rounded-full w-[10%]" />
+                      <div
+                        className="absolute left-0 top-0 h-2 rounded-full"
+                        style={{
+                          backgroundColor: riskColor,
+                          width: `${Math.min(riskScore, 100)}%`,
+                        }}
+                      />
                     </div>
                     <span className="text-sm font-medium text-[#414651]">
-                      10%
+                      {riskScore}%
                     </span>
                   </div>
                 </div>
-                <p className="text-sm text-[#717680]">Low Risk • Verified</p>
+                <p className="text-sm text-[#717680]">
+                  {isLowRisk ? "Low Risk" : riskScore <= 75 ? "Medium Risk" : "High Risk"} •{" "}
+                  {userData?.ninVerified ? "Verified" : "Pending Verification"}
+                </p>
               </div>
             </div>
 
@@ -139,53 +161,6 @@ export default function VerificationDialog({
                     <span className="font-medium text-[#252b37]">
                       {userData.expires}
                     </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* AI Analysis */}
-              <div className="flex flex-col gap-3">
-                <h3 className="font-semibold text-base text-[#181d27]">
-                  AI Analysis
-                </h3>
-                <div className="flex flex-col gap-3">
-                  {/* Face Match */}
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm text-[#717680]">Face Match</p>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 h-2 bg-[#d5d7da] rounded-full relative">
-                        <div className="absolute left-0 top-0 h-2 bg-[#039855] rounded-full w-[98.5%]" />
-                      </div>
-                      <span className="text-sm font-medium text-[#414651]">
-                        98.5%
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Authenticity */}
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm text-[#717680]">Authenticity</p>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 h-2 bg-[#d5d7da] rounded-full relative">
-                        <div className="absolute left-0 top-0 h-2 bg-[#039855] rounded-full w-[98.5%]" />
-                      </div>
-                      <span className="text-sm font-medium text-[#414651]">
-                        98.5%
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Data Consistency */}
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm text-[#717680]">Data Consistency</p>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 h-2 bg-[#d5d7da] rounded-full relative">
-                        <div className="absolute left-0 top-0 h-2 bg-[#039855] rounded-full w-[98.5%]" />
-                      </div>
-                      <span className="text-sm font-medium text-[#414651]">
-                        98.5%
-                      </span>
-                    </div>
                   </div>
                 </div>
               </div>
