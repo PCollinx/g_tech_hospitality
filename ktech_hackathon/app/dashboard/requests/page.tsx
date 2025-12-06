@@ -1,59 +1,42 @@
 "use client";
 
 import { Clock, Check } from "lucide-react";
+import { useState, useEffect } from "react";
+import axiosInstance from "@/lib/axios";
 
-// Request data matching Figma design
-const requests = [
-  {
-    id: 1,
-    serviceType: "Room Service",
-    description:
-      "I have a slight injury on my lower right back from lifting luggage, so please avoid deep pressure in that area. Also, I have sensitive...",
-    time: "01:01",
-    estimatedTime: "Est. 15-30 min",
-    status: "Pending",
-    iconColor: "#dc6803",
-    iconBg: "#fffaeb",
-    icon: "clock",
-  },
-  {
-    id: 2,
-    serviceType: "Housekeeping",
-    description:
-      "We accidentally spilled some soda on the rug near the bed. Could you please send someone to clean it up before it stains? We also need fresh towels.",
-    time: "01:01",
-    estimatedTime: "Est. 15-30 min",
-    status: "Pending",
-    iconColor: "#dc6803",
-    iconBg: "#fffaeb",
-    icon: "clock",
-  },
-  {
-    id: 3,
-    serviceType: "Laundry",
-    description:
-      "The blue silk dress is very delicate. Please dry clean only and do not use high heat. It has a small sequin detail on the collar, please be careful.",
-    time: "01:01",
-    estimatedTime: "Est. 15-30 min",
-    status: "Pending",
-    iconColor: "#dc6803",
-    iconBg: "#fffaeb",
-    icon: "clock",
-  },
-  {
-    id: 4,
-    serviceType: "Breakfast Order",
-    description: "Continental breakfast for 2",
-    time: "01:01",
-    estimatedTime: "Est. 15-30 min",
-    status: "Completed",
-    iconColor: "#039855",
-    iconBg: "#ecfdf3",
-    icon: "check",
-  },
-];
+interface ServiceRequest {
+  _id: string;
+  type?: string;
+  description: string;
+  status: string;
+  createdAt: string;
+  service?: {
+    name?: string;
+    category?: string;
+  };
+}
 
 export default function RequestsPage() {
+  const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get("/service-requests/my-requests");
+        const fetchedRequests = response.data.data?.requests || [];
+        setRequests(fetchedRequests);
+      } catch (error) {
+        console.error("Error fetching service requests:", error);
+        setRequests([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRequests();
+  }, []);
   return (
     <div className="px-3 sm:px-5 lg:px-6 py-4 sm:py-5 lg:py-6 max-w-full">
       {/* Page Header */}
@@ -87,67 +70,93 @@ export default function RequestsPage() {
               </tr>
             </thead>
             <tbody>
-              {requests.map((request, index) => (
-                <tr
-                  key={request.id}
-                  className={`border-b border-[#e9eaeb] ${
-                    index === requests.length - 1 ? "" : "bg-neutral-50"
-                  }`}
-                >
-                  {/* Service Type */}
-                  <td className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <div
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: request.iconBg }}
-                      >
-                        {request.icon === "clock" ? (
-                          <Clock
-                            className="w-4 h-4 sm:w-5 sm:h-5"
-                            style={{ color: request.iconColor }}
-                          />
-                        ) : (
-                          <Check
-                            className="w-4 h-4 sm:w-5 sm:h-5"
-                            style={{ color: request.iconColor }}
-                          />
-                        )}
-                      </div>
-                      <span className="font-['Geist'] font-medium text-xs sm:text-sm text-[#181d27] leading-5">
-                        {request.serviceType}
-                      </span>
-                    </div>
-                  </td>
-
-                  {/* Description */}
-                  <td className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4">
-                    <p className="font-['Geist'] font-normal text-xs sm:text-sm text-[#535862] leading-5 line-clamp-2">
-                      {request.description}
-                    </p>
-                  </td>
-
-                  {/* Time */}
-                  <td className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4">
-                    <div className="font-['Geist'] font-normal text-xs sm:text-sm text-[#535862] leading-5">
-                      <p>{request.time}</p>
-                      <p className="mt-1">{request.estimatedTime}</p>
-                    </div>
-                  </td>
-
-                  {/* Status */}
-                  <td className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4">
-                    {request.status === "Pending" ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-2xl bg-[#fffaeb] font-['Geist'] font-medium text-[10px] sm:text-xs text-[#b54708] leading-[18px]">
-                        Pending
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-2xl bg-[#ecfdf3] font-['Geist'] font-medium text-[10px] sm:text-xs text-[#027a48] leading-[18px]">
-                        Completed
-                      </span>
-                    )}
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 text-center font-['Geist'] font-normal text-xs sm:text-sm text-[#535862]">
+                    Loading requests...
                   </td>
                 </tr>
-              ))}
+              ) : requests.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 text-center font-['Geist'] font-normal text-xs sm:text-sm text-[#535862]">
+                    No service requests found
+                  </td>
+                </tr>
+              ) : (
+                requests.map((request, index) => {
+                  const isCompleted = request.status === "completed";
+                  const serviceName = request.service?.name || request.type || "Service";
+                  const createdAt = new Date(request.createdAt);
+                  const timeString = createdAt.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                  const iconBg = isCompleted ? "#ecfdf3" : "#fffaeb";
+                  const iconColor = isCompleted ? "#039855" : "#dc6803";
+
+                  return (
+                    <tr
+                      key={request._id}
+                      className={`border-b border-[#e9eaeb] ${
+                        index === requests.length - 1 ? "" : "bg-neutral-50"
+                      }`}
+                    >
+                      {/* Service Type */}
+                      <td className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: iconBg }}
+                          >
+                            {isCompleted ? (
+                              <Check
+                                className="w-4 h-4 sm:w-5 sm:h-5"
+                                style={{ color: iconColor }}
+                              />
+                            ) : (
+                              <Clock
+                                className="w-4 h-4 sm:w-5 sm:h-5"
+                                style={{ color: iconColor }}
+                              />
+                            )}
+                          </div>
+                          <span className="font-['Geist'] font-medium text-xs sm:text-sm text-[#181d27] leading-5">
+                            {serviceName}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Description */}
+                      <td className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4">
+                        <p className="font-['Geist'] font-normal text-xs sm:text-sm text-[#535862] leading-5 line-clamp-2">
+                          {request.description || "No description"}
+                        </p>
+                      </td>
+
+                      {/* Time */}
+                      <td className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4">
+                        <div className="font-['Geist'] font-normal text-xs sm:text-sm text-[#535862] leading-5">
+                          <p>{timeString}</p>
+                          <p className="mt-1">Est. 15-30 min</p>
+                        </div>
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4">
+                        {isCompleted ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-2xl bg-[#ecfdf3] font-['Geist'] font-medium text-[10px] sm:text-xs text-[#027a48] leading-[18px] capitalize">
+                            {request.status}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-2xl bg-[#fffaeb] font-['Geist'] font-medium text-[10px] sm:text-xs text-[#b54708] leading-[18px] capitalize">
+                            {request.status}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

@@ -2,12 +2,52 @@
 
 import { Eye, EyeOff, Clock, ChevronRight, Sparkles, Zap } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import axiosInstance from "@/lib/axios";
+
+interface ServiceRequest {
+  _id: string;
+  type?: string;
+  description: string;
+  status: string;
+  createdAt: string;
+  service?: {
+    name?: string;
+    category?: string;
+  };
+}
 
 export default function DashboardPage() {
   const [showPin, setShowPin] = useState(false);
+  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchServiceRequests = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get("/service-requests/my-requests");
+        const requests = response.data.data?.requests || [];
+        // Get only active requests (pending, assigned, in-progress)
+        const activeRequests = requests.filter(
+          (req: ServiceRequest) =>
+            req.status === "pending" ||
+            req.status === "assigned" ||
+            req.status === "in-progress"
+        );
+        setServiceRequests(activeRequests.slice(0, 4)); // Show max 4 requests
+      } catch (error) {
+        console.error("Error fetching service requests:", error);
+        setServiceRequests([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServiceRequests();
+  }, []);
 
   const handleFoodClick = () => {
     router.push("/dashboard/services/request?service=8&name=Restaurant");
@@ -211,74 +251,66 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {[
-                {
-                  service: "Room Service",
-                  description:
-                    "I have a slight injury on my lower right back from lifting luggage, so please avoid deep pressure in that area. Also, I have sensitive...",
-                  status: "Pending",
-                  completed: false,
-                },
-                {
-                  service: "Housekeeping",
-                  description:
-                    "We accidentally spilled some soda on the rug near the bed. Could you please send someone to clean it up before it stains? We also need fresh towels.",
-                  status: "Pending",
-                  completed: false,
-                },
-                {
-                  service: "Laundry",
-                  description:
-                    "The blue silk dress is very delicate. Please dry clean only and do not use high heat. It has a small sequin detail on the collar, please be careful.",
-                  status: "Pending",
-                  completed: false,
-                },
-                {
-                  service: "Breakfast Order",
-                  description: "Continental breakfast for 2",
-                  status: "Completed",
-                  completed: true,
-                },
-              ].map((request, idx) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm text-[#535862]">
+                    Loading requests...
+                  </td>
+                </tr>
+              ) : serviceRequests.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm text-[#535862]">
+                    No active requests
+                  </td>
+                </tr>
+              ) : (
+                serviceRequests.map((request, idx) => {
+                  const isCompleted = request.status === "completed";
+                  const serviceName = request.service?.name || request.type || "Service";
+                  const createdAt = new Date(request.createdAt);
+                  const timeString = createdAt.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                  
+                  return (
                 <tr
-                  key={idx}
+                  key={request._id}
                   className="border-b border-gray-200 bg-neutral-50"
                 >
                   <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <div
                         className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center ${
-                          request.completed ? "bg-[#ecfdf3]" : "bg-[#fffaeb]"
+                          isCompleted ? "bg-[#ecfdf3]" : "bg-[#fffaeb]"
                         }`}
                       >
                         <Clock
                           className={`w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 ${
-                            request.completed
-                              ? "text-[#039855]"
-                              : "text-[#dc6803]"
+                            isCompleted ? "text-[#039855]" : "text-[#dc6803]"
                           }`}
                         />
                       </div>
                       <p className="text-xs sm:text-sm font-medium text-[#181d27] whitespace-nowrap">
-                        {request.service}
+                        {serviceName}
                       </p>
                     </div>
                   </td>
                   <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                     <p className="text-xs sm:text-sm text-[#535862] line-clamp-2">
-                      {request.description}
+                      {request.description || "No description"}
                     </p>
                   </td>
                   <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                     <div className="text-xs sm:text-sm text-[#535862]">
-                      <p>01:01</p>
+                      <p>{timeString}</p>
                       <p className="text-[10px] sm:text-xs">Est. 15-30 min</p>
                     </div>
                   </td>
                   <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                     <span
-                      className={`inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap ${
-                        request.completed
+                      className={`inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap capitalize ${
+                        isCompleted
                           ? "bg-[#ecfdf3] text-[#027a48]"
                           : "bg-[#fffaeb] text-[#b54708]"
                       }`}
@@ -287,7 +319,9 @@ export default function DashboardPage() {
                     </span>
                   </td>
                 </tr>
-              ))}
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

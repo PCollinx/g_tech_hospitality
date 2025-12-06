@@ -184,6 +184,22 @@ export default function Navbar() {
               >
                 About
               </Link>
+              {isAuthenticated && (
+                <Link
+                  href={
+                    user?.role === "admin" || user?.role === "super-admin"
+                      ? "/admin"
+                      : "/dashboard"
+                  }
+                  className={`text-sm font-medium transition-colors ${
+                    isDarkBackground && !isScrolled
+                      ? "text-white/90 hover:text-white"
+                      : "text-gray-700 hover:text-gray-900"
+                  }`}
+                >
+                  Dashboard
+                </Link>
+              )}
             </div>
             {isAuthenticated ? (
               <Button
@@ -283,6 +299,34 @@ export default function Navbar() {
                     About
                   </Link>
                 </motion.div>
+                {isAuthenticated && (
+                  <motion.div
+                    initial={{ y: -10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                      delay: 0.17,
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 25,
+                    }}
+                  >
+                    <Link
+                      href={
+                        user?.role === "admin" || user?.role === "super-admin"
+                          ? "/admin"
+                          : "/dashboard"
+                      }
+                      onClick={() => setIsMenuOpen(false)}
+                      className={`block text-sm font-medium transition-colors py-3 px-4 rounded-xl ${
+                        isDarkBackground && !isScrolled
+                          ? "text-white/90 hover:text-white hover:bg-white/10"
+                          : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                      }`}
+                    >
+                      Dashboard
+                    </Link>
+                  </motion.div>
+                )}
                 {isAuthenticated ? (
                   <motion.div
                     initial={{ y: -10, opacity: 0 }}

@@ -94,7 +94,8 @@ export default function LiveMonitoringPage() {
     const fetchBookings = async () => {
       try {
         const response = await axiosInstance.get("/bookings");
-        const bookingsData = response.data.data?.bookings || [];
+        // Handle both response structures: data.bookings or doc
+        const bookingsData = response.data.data?.bookings || response.data.doc || [];
         setBookings(bookingsData);
       } catch (error) {
         console.error("Error fetching bookings:", error);
