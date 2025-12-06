@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { Star, ArrowRight, Users, Bed, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import axiosInstance from "@/lib/axios";
+import ScrollAnimation from "@/components/ScrollAnimation";
 
 interface Room {
   _id: string;
@@ -134,28 +135,30 @@ export default function RoomsSection() {
 
       <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-32">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 md:mb-12 gap-4">
-          <div className="flex-1">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 tracking-tight leading-tight mb-2">
-              Explore our rooms
-            </h2>
-            <p className="text-gray-600 text-sm md:text-base max-w-xl">
-              Handpicked spaces designed for comfort and style. Discover the
-              perfect retreat for your stay.
-            </p>
-          </div>
+        <ScrollAnimation animation="fade-up">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 md:mb-12 gap-4">
+            <div className="flex-1">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 tracking-tight leading-tight mb-2">
+                Explore our rooms
+              </h2>
+              <p className="text-gray-600 text-sm md:text-base max-w-xl">
+                Handpicked spaces designed for comfort and style. Discover the
+                perfect retreat for your stay.
+              </p>
+            </div>
 
-          {/* View All Button */}
-          <Link href="/rooms" className="shrink-0">
-            <Button
-              size="default"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-4 sm:px-6 text-xs sm:text-sm md:text-base shadow-sm group whitespace-nowrap"
-            >
-              View All
-              <ArrowRight className="ml-1 sm:ml-2 w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </Link>
-        </div>
+            {/* View All Button */}
+            <Link href="/rooms" className="shrink-0">
+              <Button
+                size="default"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-4 sm:px-6 text-xs sm:text-sm md:text-base shadow-sm group whitespace-nowrap"
+              >
+                View All
+                <ArrowRight className="ml-1 sm:ml-2 w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+          </div>
+        </ScrollAnimation>
 
         {/* Rooms Grid */}
         {loading ? (
@@ -177,12 +180,16 @@ export default function RoomsSection() {
           </div>
         ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 gap-y-8 md:gap-6 md:gap-y-10 lg:gap-y-12 mb-8 md:mb-12">
-          {rooms.map((room) => (
-            <Link
-                key={room._id}
-                href={`/rooms/${room._id}`}
-              className="flex flex-col gap-3 md:gap-4 group"
+          {rooms.map((room, index) => (
+            <ScrollAnimation
+              key={room._id}
+              animation="fade-up"
+              delay={index * 100}
             >
+              <Link
+                href={`/rooms/${room._id}`}
+                className="flex flex-col gap-3 md:gap-4 group"
+              >
               {/* Room Image */}
               <div className="relative w-full aspect-4/3 rounded-2xl overflow-hidden bg-gray-200 group cursor-pointer">
                 <Image
@@ -246,7 +253,8 @@ export default function RoomsSection() {
                     )}
                 </div>
               </div>
-            </Link>
+              </Link>
+            </ScrollAnimation>
           ))}
         </div>
         )}

@@ -20,34 +20,16 @@ export default function Footer() {
         />
 
         {/* Footer Content with top spacing to clear background */}
-        <div className="relative pt-48 sm:pt-52 md:pt-56 pb-12 md:pb-16 lg:pb-24">
+        <div className="relative pt-24 sm:pt-32 md:pt-46 pb-12 md:pb-16 lg:pb-24">
           {/* Footer Content */}
           <div className="flex flex-col justify-center gap-8 md:gap-12">
-            {/* Footer Links */}
-            <div className="flex flex-wrap justify-center gap-8 md:gap-12">
-              {/* About */}
-              <div className="flex flex-col gap-4 md:gap-6">
-                <h3 className="text-base md:text-lg lg:text-xl font-medium">
-                  About
-                </h3>
-                <div className="flex flex-col gap-3 md:gap-4 text-xs md:text-sm opacity-70">
-                  <Link
-                    href="/about"
-                    className="hover:opacity-100 transition-opacity"
-                  >
-                    About Us
-                  </Link>
-                </div>
-              </div>
-            </div>
-
             {/* Bottom Section */}
             <div className="flex flex-col gap-8 md:gap-12">
               {/* Copyright & Social */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                 <p className="text-xs md:text-sm text-center sm:text-left">
-                  © 2025 luxehaven. All rights reserved. Designed & Built with
-                  ❤️ at the KTech Fest Hackathon 2025.
+                  © 2025 luxehaven. All rights reserved. Designed & Built by
+                  G-tech for the KTech Fest Hackathon 2025.
                 </p>
               </div>
 

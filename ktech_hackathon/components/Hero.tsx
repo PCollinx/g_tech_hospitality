@@ -55,11 +55,11 @@ export default function Hero() {
       <div className="absolute inset-0 flex items-center justify-center z-10 px-2 sm:px-4">
         <div className="w-full max-w-[718px] flex flex-col items-center gap-4 sm:gap-6 mt-12 md:mt-0">
           {/* Hero Text */}
-          <div className="text-center text-white space-y-2 sm:space-y-3 px-2">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight">
+          <div className="text-center text-white space-y-2 sm:space-y-3 px-2 animate-fade-in">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
               Find your <span className="inline-block">perfect</span> stay
             </h2>
-            <p className="text-sm sm:text-base md:text-lg leading-relaxed opacity-90 max-w-md mx-auto">
+            <p className="text-sm sm:text-base md:text-lg leading-relaxed opacity-90 max-w-md mx-auto animate-fade-up" style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
               Discover luxury accommodations with AI-powered personalization
             </p>
           </div>

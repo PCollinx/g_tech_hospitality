@@ -1096,7 +1096,11 @@ export default function LiveMonitoringPage() {
                   onChange={(e) =>
                     setEditFormData({
                       ...editFormData,
+<<<<<<< Updated upstream
                       number: parseInt(e.target.value) || 0,
+=======
+                      roomNumber: e.target.value,
+>>>>>>> Stashed changes
                     })
                   }
                   className="w-full px-3.5 py-2.5 bg-white border border-[#d5d7da] rounded-lg shadow-sm text-base leading-6 text-[#181d27] outline-none focus:ring-2 focus:ring-blue-500"
@@ -1141,7 +1145,11 @@ export default function LiveMonitoringPage() {
                     onChange={(e) =>
                       setEditFormData({
                         ...editFormData,
+<<<<<<< Updated upstream
                         category: e.target.value,
+=======
+                        roomType: e.target.value,
+>>>>>>> Stashed changes
                       })
                     }
                     className="w-full px-3.5 py-2.5 bg-white border border-[#d5d7da] rounded-lg shadow-sm text-base leading-6 text-[#181d27] outline-none appearance-none cursor-pointer focus:ring-2 focus:ring-blue-500"
@@ -1268,7 +1276,11 @@ export default function LiveMonitoringPage() {
                     onChange={(e) =>
                       setEditFormData({
                         ...editFormData,
+<<<<<<< Updated upstream
                         status: e.target.value,
+=======
+                        roomStatus: e.target.value,
+>>>>>>> Stashed changes
                       })
                     }
                     className="w-full px-3.5 py-2.5 bg-white border border-[#d5d7da] rounded-lg shadow-sm text-base leading-6 text-[#181d27] outline-none appearance-none cursor-pointer focus:ring-2 focus:ring-blue-500"
@@ -1283,6 +1295,56 @@ export default function LiveMonitoringPage() {
                   <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a4a7ae] pointer-events-none" />
                 </div>
               </div>
+<<<<<<< Updated upstream
+=======
+
+              {/* Clean Status */}
+              <div className="flex flex-col gap-1.5">
+                <label
+                  className="text-sm font-medium leading-5 text-[#414651]"
+                  style={{ fontFamily: "Geist, sans-serif" }}
+                >
+                  Clean Status
+                </label>
+                <div className="relative">
+                  <select
+                    value={editFormData.cleanStatus}
+                    onChange={(e) =>
+                      setEditFormData({
+                        ...editFormData,
+                        cleanStatus: e.target.value,
+                      })
+                    }
+                    className="w-full px-3.5 py-2.5 bg-white border border-[#d5d7da] rounded-lg shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] text-base leading-6 text-[#717680] outline-none appearance-none cursor-pointer"
+                    style={{ fontFamily: "Geist, sans-serif" }}
+                  >
+                    <option value="Clean">Clean</option>
+                    <option value="Dirty">Dirty</option>
+                    <option value="Inspected">Inspected</option>
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a4a7ae] pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Price */}
+              <div className="flex flex-col gap-1.5">
+                <label
+                  className="text-sm font-medium leading-5 text-[#414651]"
+                  style={{ fontFamily: "Geist, sans-serif" }}
+                >
+                  Price
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.price}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, price: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#d5d7da] rounded-lg shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] text-base leading-6 text-[#181d27] outline-none"
+                  style={{ fontFamily: "Geist, sans-serif" }}
+                />
+              </div>
+>>>>>>> Stashed changes
             </div>
 
             {/* Action Buttons */}
