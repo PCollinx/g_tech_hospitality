@@ -1,8 +1,38 @@
 import axios from "axios";
 import { storage } from "./storage";
 
+// Helper function to get the API URL consistently
+const getApiUrl = () => {
+  // First check environment variable (highest priority)
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  // If running in browser, detect based on current hostname
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
+
+    // Production domain - use ktech-api subdomain
+    if (
+      hostname === "ktech.sydeestack.com" ||
+      hostname.includes("sydeestack.com")
+    ) {
+      return `${protocol}//ktech-api.sydeestack.com/api/v1`;
+    }
+  }
+
+  // Server-side or development fallback
+  if (process.env.NODE_ENV === "production") {
+    return "https://ktech-api.sydeestack.com/api/v1";
+  }
+
+  // Default to localhost for local development
+  return "http://localhost:3000/api/v1";
+};
+
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1",
+  baseURL: getApiUrl(),
 });
 
 axiosInstance.defaults.withCredentials = false;
@@ -62,9 +92,8 @@ axiosInstance.interceptors.response.use(
           throw new Error("No refresh token available");
         }
 
-        // Attempt to refresh token
-        const baseURL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+        // Attempt to refresh token - use the same baseURL
+        const baseURL = getApiUrl();
         const response = await axios.post(
           `${baseURL}/users/refresh-token`,
           { refreshToken },
